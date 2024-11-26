@@ -8,6 +8,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
+from django.utils.translation import gettext as _
+from rest_framework.authtoken.views import ObtainAuthToken
 
 @api_view(['POST'])
 def register(request):
@@ -24,15 +27,29 @@ def register(request):
         }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
-def login_view(request):
-    username = request.data.get('username')
-    password = request.data.get('password')
-    user = authenticate(request, username=username, password=password)
-    if user is not None:
-        login(request, user)
-        return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
-    return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+class login_view(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        # Extract username and password
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        # Authenticate user
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            # Get or create token
+            token, created = Token.objects.get_or_create(user=user)
+
+            # Return token and user information
+            return Response({
+                'token': token.key,
+                'user_id': user.id,
+                'username': user.username,
+                'role': getattr(user, 'role', None)  # Include role if applicable
+            })
+        else:
+            # Return an error response if authentication fails
+            return Response({'error': 'Invalid Credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 class CurrentUserView(APIView):
     permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
