@@ -39,13 +39,16 @@ class login_view(ObtainAuthToken):
         if user is not None:
             # Get or create token
             token, created = Token.objects.get_or_create(user=user)
-
-            # Return token and user information
-            return Response({
-                'token': token.key,
+            data = {
                 'user_id': user.id,
                 'username': user.username,
                 'role': getattr(user, 'role', None)  # Include role if applicable
+            }
+            # Return token and user information
+            return Response({
+                'token': token.key,
+                'message': 'Login Successful',
+                'data' : data,
             })
         else:
             # Return an error response if authentication fails
