@@ -1,47 +1,63 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useToast } from './ToastContext';
 import { useStoreActions } from 'easy-peasy';
+import { Login, Register } from './api';
 
-const AuthModal = ({ isOpen, onClose }) => {
-    const [isLogin, setIsLogin] = useState(true);
+const AuthModal = ({login, isOpen, onClose}) => {
+    const [isLogin, setIsLogin] = useState(login);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setName] = useState('');
     const setUser = useStoreActions((actions) => actions.setUser);
 
+    useEffect(() => {
+        setIsLogin(login);
+    }, [login]);
+
     const notify = useToast();
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const url = isLogin ? `${process.env.REACT_APP_API_URL}/login/` : 'http://localhost:8000/api/register/';
-        const body = isLogin ? { username, password } : { username, email, password };
-
+        const url = isLogin ? Login(username, password) : Register(username, email, password);    
         try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(body),
-            });
-            if (response.ok) {
-                const result = await response.json();
-                console.log(result); // Handle success (e.g., show a message or redirect)
-                notify(result.message,'success');
-                setUser(result.user);
-                localStorage.setItem('token', result.token);
-                
-            } else {
-                console.error('Error:', response.statusText);
-                notify(response.statusText,'error');
-            }
+            const response = await url
+    
+            // Handle success
+            console.log(response); // The response data from the server
+            notify(response.message, 'success');
+            
+            // Assuming the token is returned in the response data
+            setUser(response.data); // Set user data if returned
+            localStorage.setItem('token', response.token); // Save token to local storage
+    
         } catch (error) {
-            console.error('Error:', error);
-            notify(error,'error');
-        }
+            if (error.response) {
+                const errors = error.response.data; // This is expected to be an object with arrays of messages
+                let errorMessage = 'Registration failed:\n';
+                
+                // Collect all error messages into a single array
+                const allMessages = [];
+                for (const messages of Object.values(errors)) {
+                    allMessages.push(...messages); // Spread operator to add all messages to the array
+                }
 
+                // Join all messages into a single string for display
+                errorMessage += allMessages.join('\n');
+                console.error('Error:', error.response ? errorMessage : error.message);
+                notify(error.response ? errorMessage : "Server down", 'error');
+            } else if (error.request) {
+                // The request was made but no response was received
+                console.error('No response received:', error.request);
+                notify('Registration failed: Server down', 'error');
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                console.error('Error:', error.message);
+                notify('Registration failed: An unexpected error occurred.', 'error');
+            }
+        }
+    
         onClose(); // Close the modal after submission
     };
-
+    
     if (!isOpen) return null;
 
     return (

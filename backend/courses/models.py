@@ -30,8 +30,12 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(username, password, **extra_fields)
 
 class Course(models.Model):
-    title = models.CharField(max_length=200)
+    status = (('Compulsory', 'Compulsory'), ('Required', 'Required'), ('Prerequisite', 'Prerequisite'))
+
+    title = models.CharField(max_length=200, unique=True)
     description = models.TextField()
+    unit = models.IntegerField()
+    status = models.CharField(choices=status, max_length=50)
     instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses')
 
     def save(self, *args, **kwargs):
@@ -46,25 +50,38 @@ class Course(models.Model):
 class Resource(models.Model):
     RESOURCE_TYPE = (
         ('document', 'Document'),
-        ('video', 'Video'),
+        ('image', 'Image'),
         ('link', 'Link'),
     )
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='resources')
     resource_type = models.CharField(max_length=50, choices=RESOURCE_TYPE)  # e.g., document, video, link
-    file = models.FileField(upload_to='resources/')
-    image = models.ImageField(upload_to='images/')
+    image = models.ImageField(upload_to='images/', blank=True, null=True)
     url = models.URLField(blank=True, null=True)
-    title = models.CharField(max_length=200)
-    description = models.TextField()
 
     def __str__(self):
-        return self.title
+        return self.course.title
+
+class ResourceFile(models.Model):
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name='files')
+    file = models.FileField(upload_to='resources/')
 
 class Assignment(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='assignments')
     title = models.CharField(max_length=200)
-    description = models.TextField()
+    question = models.TextField()
     due_date = models.DateTimeField()
 
     def __str__(self):
         return self.title
+
+class AssignmentResponse(models.Model):
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name='responses')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='responses')
+    submission_date = models.DateTimeField(auto_now_add=True)
+    response_text = models.TextField()  # You can change this field based on your requirements (e.g., FileField for file uploads)
+
+    class Meta:
+        unique_together = ('assignment', 'user')  # Ensure one response per user per assignment
+
+    def __str__(self):
+        return f"{self.user.username} - {self.assignment.title}"

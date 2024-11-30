@@ -1,9 +1,9 @@
 // store.js
-import { createStore, action } from 'easy-peasy';
+import { createStore, action, persist } from 'easy-peasy';
 
 const storeModel = {
     user: {
-        id: null,
+        user_id: null,
         username: '',
         email: '',
     },
@@ -15,6 +15,6 @@ const storeModel = {
     }),
 };
 
-const store = createStore(storeModel);
+const store = createStore(persist(storeModel));
 
 export default store;

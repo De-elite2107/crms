@@ -31,16 +31,40 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-class ResourceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Resource
-        fields = ['id', 'title', 'resource_type', 'file', 'url', 'description']
-
 class CourseSerializer(serializers.ModelSerializer):
+    instructor = UserSerializer()
     class Meta:
         model = Course
-        fields = ['id', 'title', 'description', 'instructor']
+        fields = ['id', 'title', 'description', 'unit', 'status', 'instructor']
     def validate_instructor(self, value):
         if value.role == 'student':
             raise serializers.ValidationError("Only users with 'admin' and 'lecturer role can be assigned as instructors.")
         return value
+
+class ResourceFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ResourceFile
+        fields = ['id', 'file']
+
+class ResourceSerializer(serializers.ModelSerializer):
+    course = CourseSerializer()
+    files = ResourceFileSerializer(many=True)  # Include files in the resource serializer
+    class Meta:
+        model = Resource
+        fields = ['id', 'course', 'resource_type', 'url', 'files']
+
+class AssignmentSerializer(serializers.ModelSerializer):
+    course = CourseSerializer()
+    class Meta:
+        model = Assignment
+        fields = ['id', 'course', 'title', 'question', 'due_date']
+
+class AssignmentResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssignmentResponse
+        fields = ['response_text']
+        read_only_fields = ['user', 'assignment']  # Make user and assignment read-only since they are set automatically
+
+    def create(self, validated_data):
+        # In this case, we don't need to override create since we handle it in perform_create
+        return super().create(validated_data)

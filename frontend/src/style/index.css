@@ -275,6 +275,10 @@
     background-color: #fff;
   }
 
+  .hover\:greyBg:hover {
+    background-color: #707070; /* Background color on hover */
+  }
+
 
   .modal-overlay {
     position: fixed;

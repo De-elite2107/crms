@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./style/flexboxgrid.min.css";
@@ -10,15 +10,15 @@ import { ToastProvider } from './components/ToastContext';
 import { StoreProvider } from 'easy-peasy';
 import store from './components/easy-peasy/store';
 
-ReactDOM.render(
-  <>
-  <ToastProvider>
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
     <StoreProvider store={store}>
-      <App />
+      <ToastProvider>
+        <App />
+      </ToastProvider>
     </StoreProvider>
-  </ToastProvider>
-  </>,
-  document.getElementById('root')
+  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

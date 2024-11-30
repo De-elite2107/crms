@@ -23,9 +23,31 @@ class CourseForm(forms.ModelForm):
 
 class CourseAdmin(admin.ModelAdmin):
     form = CourseForm
-
+    list_display = ('title', 'status', 'unit', 'instructor')  # Columns to display
+    search_fields = ('title', 'status', 'unit', 'instructor')
+    list_filter = ('status', 'instructor', 'unit')
 # Register your models here.
 admin.site.register(User, ModelAdmin)
 admin.site.register(Course, CourseAdmin)
-admin.site.register(Resource)
-admin.site.register(Assignment)
+class ResourceFileInline(admin.TabularInline):
+    model = ResourceFile
+    extra = 1  # Number of empty forms to display
+
+@admin.register(Resource)
+class ResourceAdmin(admin.ModelAdmin):
+    inlines = [ResourceFileInline]  # Include ResourceFile inline in Resource admin
+    list_display = ['course', 'resource_type']
+    search_fields = ['course', 'resource_type']
+    list_filter = ['resource_type']
+
+@admin.register(Assignment)
+class AssignmentAdmin(admin.ModelAdmin):
+    list_display = ['title', 'course', 'due_date']
+    search_fields = ['title', 'description']
+    list_filter = ['course', 'due_date']
+
+@admin.register(AssignmentResponse)
+class AssignmentResponseAdmin(admin.ModelAdmin):
+    list_display = ['user', 'assignment', 'submission_date', 'response_text']
+    search_fields = ['user__username', 'assignment__title']
+    list_filter = ['assignment', 'user']
