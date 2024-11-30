@@ -31,35 +31,42 @@ const ResourceDetail = ({ courseid, course }) => {
     
     return (
         <div className="container mt-4">
-            <ul className="list-group">
-                {resources.map(resource => (
-                    <li key={resource.id} className="list-group-item">
-                        <div className='mb-3'>
-                            <h4 className='text-3xl'><strong>Course details</strong></h4>
-                            <h5><strong>Title:</strong> {resource.course.title}</h5>
-                            <p><strong>Description:</strong> {resource.course.description}</p>
-                            <p><strong>Unit:</strong> {resource.course.unit}</p>
-                            {resource.url &&<><strong>URL:</strong> {resource.url}</>}
-                        </div>
-                        <div className='mb-3'>
-                            <h4 className='text-lg'><strong>Resource details</strong></h4>
-                            <h5><strong>Files</strong></h5>
-                            <ul className='list-group'>
-                                {resource.files.map(file => (
-                                    <li key={file.id} className="list-group-item">
-                                        <a href={file.file}>{file.file.split('/').pop()}</a>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className='text-lg'><strong>Lecturer details</strong></h4>
-                            <p><strong>Name:</strong> {resource.course.instructor.username}</p>
-                            <p><strong>Email:</strong> {resource.course.instructor.email}</p>
-                        </div>
-                    </li>
-                ))}
-            </ul>
+            {resources.length > 0 ? (
+                <ul className="list-group">
+                    {resources.map(resource => (
+                        <li key={resource.id} className="list-group-item">
+                            <div className='mb-3'>
+                                <h4 className='text-3xl'><strong>Course details</strong></h4>
+                                <h5><strong>Title:</strong> {resource.course.title}</h5>
+                                <p><strong>Description:</strong> {resource.course.description}</p>
+                                <p><strong>Unit:</strong> {resource.course.unit}</p>
+                                {resource.url &&<><strong>URL:</strong> {resource.url}</>}
+                            </div>
+                            <div className='mb-3'>
+                                <h4 className='text-lg'><strong>Resource details</strong></h4>
+                                <h5><strong>Files</strong></h5>
+                                <ul className='list-group'>
+                                    {resource.files.map(file => (
+                                        <li key={file.id} className="list-group-item">
+                                            <a href={file.file}>{file.file.split('/').pop()}</a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className='text-lg'><strong>Lecturer details</strong></h4>
+                                <p><strong>Name:</strong> {resource.course.instructor.username}</p>
+                                <p><strong>Email:</strong> {resource.course.instructor.email}</p>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <div>
+                    <p className='text-3xl'><strong>Sorry!!!</strong></p>
+                    <p className='text-md'>No Resource Available for this course yet</p>
+                </div>
+            )}
         </div>
     );
 };
@@ -91,6 +98,7 @@ const Courses = () => {
     if (error) return <p>Error fetching courses: {error.message}</p>;
   return (
     <div className="container mt-4">
+        {courses.length > 0 ? (
             <>
                 {viewResource ? (
                     <ResourceDetail courseid={courseId} course={course}/>
@@ -115,6 +123,12 @@ const Courses = () => {
                     </>
                 )}
             </>
+        ) : (
+            <div>
+                <p className='text-3xl'><strong>Sorry!!!</strong></p>
+                <p className='text-md'>No Course Available yet</p>
+            </div>
+        )}
         </div>
   )
 }

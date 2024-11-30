@@ -82,29 +82,38 @@ const Assignment = () => {
 
   return (
     <>
-        {respond ? (
-            <AssignmentSubmit assigment_id={assigmentId} question={question}/>
-        ) : (
-            <div className='container'>
-                <h1 className='row  mb-4 text-3xl'>Assignments</h1>
-                <div className="row">
-                {assignments.map((assignment) => (
-                    <div key={assignment.id} className="col-md-4 mb-3 w-1/3">
-                        <div className="h-full">
-                            <div className="flex card-body flex-col justify-between h-full">
-                                <h3 className="card-title text-xl"><strong>{assignment.title}</strong></h3>
-                                <p className="card-text"><strong>Course:</strong> {assignment.course.title}</p>
-                                <p className="card-text"><strong>Question:</strong> {assignment.question}</p>
-                                <p className="card-text"><strong>Date due:</strong> {extractedDate(assignment.due_date)} by {extractedTime(assignment.due_date)}</p>
-                                <p className="card-text"><strong>Instructor:</strong> {assignment.course.instructor.username}</p>
-                                <BtnWrapper>
-                                <button onClick={()=> {setQuestion(assignment.question); setAssignmentId(assignment.id); setRespond(!respond);}} className='purpleBg rounded-md p-2 text-white w-full hover:greyBg duration-500'>Submit Assignment</button>
-                                </BtnWrapper>
+        {assignments.length > 0 ? (
+            <>
+                {respond ? (
+                    <AssignmentSubmit assigment_id={assigmentId} question={question}/>
+                ) : (
+                    <div className='container'>
+                        <h1 className='row  mb-4 text-3xl'>Assignments</h1>
+                        <div className="row">
+                        {assignments.map((assignment) => (
+                            <div key={assignment.id} className="col-md-4 mb-3 w-1/3">
+                                <div className="h-full">
+                                    <div className="flex card-body flex-col justify-between h-full">
+                                        <h3 className="card-title text-xl"><strong>{assignment.title}</strong></h3>
+                                        <p className="card-text"><strong>Course:</strong> {assignment.course.title}</p>
+                                        <p className="card-text"><strong>Question:</strong> {assignment.question}</p>
+                                        <p className="card-text"><strong>Date due:</strong> {extractedDate(assignment.due_date)} by {extractedTime(assignment.due_date)}</p>
+                                        <p className="card-text"><strong>Instructor:</strong> {assignment.course.instructor.username}</p>
+                                        <BtnWrapper>
+                                        <button onClick={()=> {setQuestion(assignment.question); setAssignmentId(assignment.id); setRespond(!respond);}} className='purpleBg rounded-md p-2 text-white w-full hover:greyBg duration-500'>Submit Assignment</button>
+                                        </BtnWrapper>
+                                    </div>
+                                </div>
                             </div>
+                        ))}
                         </div>
                     </div>
-                ))}
-                </div>
+                )}
+            </>
+        ) : (
+            <div className='container'>
+                <p className='text-3xl'><strong>Hello!!!</strong></p>
+                <p className='text-md'>No Assignment for now</p>
             </div>
         )}
     </>
