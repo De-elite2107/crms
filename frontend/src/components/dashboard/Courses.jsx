@@ -100,7 +100,7 @@ const Courses = () => {
                         <div className="row">
                             {courses.map(course => (
                                 <ShortCard
-                                buttonName='View details'
+                                buttonName='View Resources'
                                 key={course.id}
                                 id={course.id}
                                 title={course.title}
